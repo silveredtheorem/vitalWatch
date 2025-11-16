@@ -4,17 +4,17 @@ VitalWatch is a Flutter-based mobile application designed to provide users with 
 
 ## Features
 
-- **One-Tap SOS:** A large, visually prominent SOS button on the home screen.
-- **Automatic Fall Detection:** Uses the phone's accelerometer to detect a fall followed by an impact, triggering a 15-second countdown before sending a medical alert.
-- **Emergency Contacts:** Users can add and manage emergency contacts, who are automatically pinged when any SOS is triggered.
-- **Live Location Tracking:** When an SOS is active, the app sends live location updates to a Firestore 'session' document.
+- **One-Tap SOS**
+- **Automatic Fall Detection** Uses the phone's accelerometer to detect a fall followed by an impact, triggering a 15-second countdown before sending a medical alert.
+- **Custom Emergency Contacts:** Users can add and manage emergency contacts, who are automatically pinged when any SOS is triggered.
+- **Live Location Tracking:** When an SOS is active, the app sends live location updates to a Firestore 'session' document for now. (Can be extended to actually send messages or calls)
 - **Interactive Map:** Displays the user's location and nearby authorities (Police, Fire, Medical) on a map after an SOS is sent.
 - **Dark Mode UI:** A sleek, modern user interface with a dark theme and professional animations.
 - **Local Emulator Support:** Fully configured to run with a local Firebase Emulator suite for easy development and testing.
 
 ## Getting Started
 
-This project is configured to run with a local Firebase development environment. Follow these steps to get the app running on your own machine.
+This project prototype is configured to run with a local Firebase development environment. Follow these steps to get the app running on your own machine.
 
 ### 1. Prerequisites
 
@@ -26,7 +26,7 @@ This project is configured to run with a local Firebase development environment.
 
 1.  **Clone the Repository:**
     ```sh
-    git clone <your-repository-url>
+    git clone https://github.com/silveredtheorem/vitalWatch
     cd untitled
     ```
 
@@ -43,9 +43,9 @@ This project is configured to run with a local Firebase development environment.
     cd ..
     ```
 
-### 3. Configuration (Crucial Step)
+### 3. Configuration
 
-This project uses environment variables to handle secret API keys and local network configuration. You must create two files that are NOT checked into source control.
+This project uses environment variables to handle secret API keys and local network configuration for security reasons :) You must create two files that are NOT checked into source control.
 
 **A. Configure Your API Keys:**
 
