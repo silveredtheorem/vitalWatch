@@ -1,0 +1,37 @@
+import * as functions from "firebase-functions";
+import * as admin from "firebase-admin";
+import fetch from "node-fetch";
+
+admin.initializeApp();
+
+export const sendEmergencyPing = functions.https.onCall(async (req, context) => {
+  const { type, latitude, longitude } = req.data;
+
+  if (!type || !latitude || !longitude) {
+    throw new functions.https.HttpsError(
+      "invalid-argument",
+      "Missing required parameters."
+    );
+  }
+
+  const googleApiKey = "YOUR_GOOGLE_MAPS_API_KEY";
+  const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=5000&type=${type}&key=${googleApiKey}`;
+
+  const response = await fetch(url);
+  const json = await response.json();
+  const nearest = json.results?.[0] || null;
+
+  await admin.firestore().collection("sos_logs").add({
+    type,
+    latitude,
+    longitude,
+    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    nearest,
+  });
+
+  return {
+    success: true,
+    nearest,
+    message: `Ping sent for ${type.toUpperCase()} assistance.`,
+  };
+});

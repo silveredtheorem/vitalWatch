@@ -1,0 +1,110 @@
+
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  // Connect to local Firebase emulators
+  FirebaseFunctions.instanceFor(region: 'us-central1')
+      .useFunctionsEmulator('172.30.43.249', 5001);
+  FirebaseFirestore.instance.useFirestoreEmulator('172.30.43.249', 8085);
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'VitalWatch',
+      theme: ThemeData(
+        primarySwatch: Colors.red,
+      ),
+      home: const HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('VitalWatch SOS')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () => _showSosOptions(context),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            shape: const CircleBorder(),
+            padding: const EdgeInsets.all(60),
+          ),
+          child: const Text(
+            'SOS',
+            style: TextStyle(fontSize: 28, color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+void _showSosOptions(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    builder: (ctx) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        child: Wrap(
+          children: [
+            _sosOption(ctx, 'Police'),
+            _sosOption(ctx, 'Fire'),
+            _sosOption(ctx, 'Medical'),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Widget _sosOption(BuildContext context, String type) {
+  return ListTile(
+    leading: const Icon(Icons.location_on, color: Colors.red),
+    title: Text(type),
+    onTap: () async {
+      Navigator.pop(context);
+      await sendPing(type, 13.0827, 80.2707);
+
+      // Ensure context is still valid before showing snackbar
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$type alert sent!')),
+        );
+      }
+    },
+  );
+}
+
+Future<void> sendPing(String type, double lat, double lon) async {
+  try {
+    final callable = FirebaseFunctions.instanceFor(region: 'us-central1')
+        .httpsCallable('sendEmergencyPing');
+    final result = await callable.call({
+      'type': type,
+      'latitude': lat,
+      'longitude': lon,
+    });
+
+    print('SOS sent: ${result.data}');
+  } catch (e) {
+    print('Error sending ping: $e');
+  }
+}
